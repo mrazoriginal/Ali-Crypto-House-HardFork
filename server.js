@@ -1,39 +1,21 @@
 import express from "express";
 import fetch from "node-fetch";
-import fs from "fs";
 import cors from "cors";
+import bodyParser from "body-parser";
+import fs from "fs";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.json());
+app.use(bodyParser.json());
 
-// --- Quotes List ---
-const quotes = [
-  "The trend is your friend until it ends.",
-  "Risk comes from not knowing what you’re doing.",
-  "Cut your losses short and let your winners run.",
-  "Markets are never wrong — opinions often are.",
-  "Plan the trade and trade the plan.",
-  "Don’t get high on your own supply.",
-  "Patience pays more than prediction.",
-  "You either win or you learn. Never lose."
-];
-
-// --- Endpoint: GET /quotes ---
-app.get("/quotes", (req, res) => {
-  const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-  res.json({ quote: randomQuote });
-});
-
-// --- Endpoint: GET /prices ---
-app.get("/prices", async (req, res) => {
+// -------------------- Coin Prices --------------------
+app.get("/api/prices", async (req, res) => {
   try {
-    const coins = ["bitcoin","ethereum","tether"];
-    const response = await fetch(
-      `https://api.coingecko.com/api/v3/simple/price?ids=${coins.join(",")}&vs_currencies=usd`
-    );
+    const coins = ["bitcoin", "ethereum", "tether"];
+    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coins.join(",")}&vs_currencies=usd`;
+    const response = await fetch(url);
     const data = await response.json();
     res.json(data);
   } catch (err) {
@@ -42,22 +24,42 @@ app.get("/prices", async (req, res) => {
   }
 });
 
-// --- Endpoint: GET /portfolio ---
-app.get("/portfolio", (req, res) => {
+// -------------------- Quotes --------------------
+app.get("/api/quotes", (req, res) => {
   try {
-    const raw = fs.readFileSync("portfolio.json", "utf-8");
-    const portfolio = JSON.parse(raw);
-    res.json(portfolio);
-  } catch {
-    res.json({ bitcoin: 0, ethereum: 0, tether: 0 });
+    const raw = fs.readFileSync("./data/quotes.json", "utf-8");
+    const quotes = JSON.parse(raw);
+    res.json(quotes);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to load quotes" });
   }
 });
 
-// --- Endpoint: POST /portfolio ---
-app.post("/portfolio", (req, res) => {
-  const data = req.body;
-  fs.writeFileSync("portfolio.json", JSON.stringify(data, null, 2));
-  res.json({ status: "saved" });
+// -------------------- Portfolio --------------------
+const PORTFOLIO_FILE = "./portfolio.json";
+
+app.get("/api/portfolio", (req, res) => {
+  try {
+    if (!fs.existsSync(PORTFOLIO_FILE)) fs.writeFileSync(PORTFOLIO_FILE, "{}");
+    const raw = fs.readFileSync(PORTFOLIO_FILE, "utf-8");
+    res.json(JSON.parse(raw));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to load portfolio" });
+  }
 });
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.post("/api/portfolio", (req, res) => {
+  try {
+    const data = req.body;
+    fs.writeFileSync(PORTFOLIO_FILE, JSON.stringify(data, null, 2));
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to save portfolio" });
+  }
+});
+
+// -------------------- Start Server --------------------
+app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
