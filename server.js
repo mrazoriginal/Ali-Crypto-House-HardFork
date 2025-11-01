@@ -35,7 +35,7 @@ app.get("/api/prices", async (req, res) => {
 // -------------------- Quotes --------------------
 app.get("/api/quotes", quotesLimiter, (req, res) => {
   try {
-    const raw = fs.readFileSync("./data/quotes.json", "utf-8");
+    const raw = fs.readFileSync("./quotes.json", "utf-8"); // <-- change here
     const quotes = JSON.parse(raw);
     res.json(quotes);
   } catch (err) {
@@ -43,6 +43,7 @@ app.get("/api/quotes", quotesLimiter, (req, res) => {
     res.status(500).json({ error: "Failed to load quotes" });
   }
 });
+
 
 // -------------------- Portfolio --------------------
 const PORTFOLIO_FILE = "./portfolio.json";
