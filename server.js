@@ -25,36 +25,33 @@ const quotesLimiter = rateLimit({
 });
 
 // -------------------- Coin Prices --------------------
-app.get("/api/prices", async (req, res) => {
-  try {
-    const coins = ["bitcoin", "ethereum", "tether"];
-    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coins.join(
-      ","
-    )}&vs_currencies=usd`;
-    const response = await fetch(url);
-    const data = await response.json();
-    res.json(data);
-  } catch (err) {
-    console.error("Prices fetch error:", err);
-    res.status(500).json({ error: "Failed to fetch prices" });
-  }
-});
+const API_URL = "https://ali-crypto-house-hardfork.onrender.com";
 
-// -------------------- Quotes --------------------
-app.get("/api/quotes", quotesLimiter, (req, res) => {
+async function getPrices() {
   try {
-    const filePath = path.join(__dirname, "quotes.json");
-    if (!fs.existsSync(filePath)) {
-      fs.writeFileSync(filePath, JSON.stringify([], null, 2));
-    }
-    const raw = fs.readFileSync(filePath, "utf-8");
-    const quotes = JSON.parse(raw);
-    res.json(quotes);
+    const res = await fetch(`${API_URL}/api/prices`);
+    if (!res.ok) throw new Error(res.statusText);
+    const data = await res.json();
+    console.log("Prices:", data);
   } catch (err) {
-    console.error("Quotes fetch error:", err);
-    res.status(500).json({ error: "Failed to load quotes" });
+    console.error("Failed to fetch prices:", err);
   }
-});
+}
+
+// -------------------- quote --------------------
+async function getQuotes() {
+  try {
+    const res = await fetch(`${API_URL}/api/quotes`);
+    if (!res.ok) throw new Error(res.statusText);
+    const data = await res.json();
+    console.log("Quotes:", data);
+  } catch (err) {
+    console.error("Failed to fetch quotes:", err);
+  }
+}
+
+getPrices();
+getQuotes();
 
 // -------------------- Portfolio --------------------
 const PORTFOLIO_FILE = path.join(__dirname, "portfolio.json");
