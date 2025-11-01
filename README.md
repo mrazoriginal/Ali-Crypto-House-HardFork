@@ -10,7 +10,19 @@ This fork adds a **Node.js backend** for API endpoints and portfolio storage whi
 
 - **Backend Added:** All coin price fetches 💰 and portfolio data 📊 now go through a Node.js server to simulate a real backend.  
 - **Portfolio Storage on Server:** Portfolio inputs are now sent to the server and can be retrieved on page load, giving the perception of persistent backend data.  
-- **Frontend Unchanged:** Your particles, emoji explosions, quotes, and UI remain the same.  
+- **Frontend Unchanged:** Your particles, emoji explosions, quotes, and UI remain the same.
+
+- **Notes / Fixes
+- **Fixed issues with file paths (quotes.json & portfolio.json).
+- **Fixed server crashes & loading problems.
+- **Backend is now stable and ready to use on my domain
+
+| Endpoint         | Method | Description            |
+| ---------------- | ------ | ---------------------- |
+| `/api/prices`    | GET    | Get live crypto prices |
+| `/api/quotes`    | GET    | Get all saved quotes   |
+| `/api/portfolio` | GET    | Get portfolio          |
+| `/api/portfolio` | POST   | Update portfolio       |
 
 ---
 
