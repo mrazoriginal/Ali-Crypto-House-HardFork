@@ -25,33 +25,36 @@ const quotesLimiter = rateLimit({
 });
 
 // -------------------- Coin Prices --------------------
-const API_URL = "https://ali-crypto-house-hardfork.onrender.com";
-
-async function getPrices() {
+app.get("/api/prices", async (req, res) => {
   try {
-    const res = await fetch(`${API_URL}/api/prices`);
-    if (!res.ok) throw new Error(res.statusText);
-    const data = await res.json();
-    console.log("Prices:", data);
+    const coins = ["bitcoin", "ethereum", "tether"];
+    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coins.join(
+      ","
+    )}&vs_currencies=usd`;
+    const response = await fetch(url);
+    const data = await response.json();
+    res.json(data);
   } catch (err) {
-    console.error("Failed to fetch prices:", err);
+    console.error("Prices fetch error:", err);
+    res.status(500).json({ error: "Failed to fetch prices" });
   }
-}
+});
 
-// -------------------- quote --------------------
-async function getQuotes() {
+// -------------------- Quotes --------------------
+app.get("/api/quotes", quotesLimiter, (req, res) => {
   try {
-    const res = await fetch(`${API_URL}/api/quotes`);
-    if (!res.ok) throw new Error(res.statusText);
-    const data = await res.json();
-    console.log("Quotes:", data);
+    const filePath = path.join(__dirname, "quotes.json");
+    if (!fs.existsSync(filePath)) {
+      fs.writeFileSync(filePath, JSON.stringify([], null, 2));
+    }
+    const raw = fs.readFileSync(filePath, "utf-8");
+    const quotes = JSON.parse(raw);
+    res.json(quotes);
   } catch (err) {
-    console.error("Failed to fetch quotes:", err);
+    console.error("Quotes fetch error:", err);
+    res.status(500).json({ error: "Failed to load quotes" });
   }
-}
-
-getPrices();
-getQuotes();
+});
 
 // -------------------- Portfolio --------------------
 const PORTFOLIO_FILE = path.join(__dirname, "portfolio.json");
