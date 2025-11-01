@@ -3,12 +3,20 @@ import fetch from "node-fetch";
 import cors from "cors";
 import bodyParser from "body-parser";
 import fs from "fs";
+import rateLimit from "express-rate-limit";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(bodyParser.json());
+
+
+// Rate limiter: max 100 requests per 15 minutes on quotes API
+const quotesLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+});
 
 // -------------------- Coin Prices --------------------
 app.get("/api/prices", async (req, res) => {
@@ -25,7 +33,7 @@ app.get("/api/prices", async (req, res) => {
 });
 
 // -------------------- Quotes --------------------
-app.get("/api/quotes", (req, res) => {
+app.get("/api/quotes", quotesLimiter, (req, res) => {
   try {
     const raw = fs.readFileSync("./data/quotes.json", "utf-8");
     const quotes = JSON.parse(raw);
