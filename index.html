@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ali Crypto House</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- Background Canvas -->
+  <canvas id="main-canvas"></canvas>
+
+  <!-- Header Section -->
+  <div class="header-box">
+    <h1>Welcome to Ali Crypto House👋🏻<h1>
+        <p>🤓به وبسایت کریپتو علی خوش اومدید</p>
+  </div>
+
+  <div class="main-box">
+
+    <!-- Search Bar -->
+    <div class="search-container">
+      <input type="text" id="search-input" placeholder="Do you wanna search?😇" />
+      <button id="search-btn">Search</button>
+    </div>
+
+    <!-- Coin Prices box -->
+    <div class="prices" id="prices">
+      <div class="coin" data-id="bitcoin">
+        <div class="coin-left">
+          <img src="https://assets.coingecko.com/coins/images/1/large/bitcoin.png" alt="BTC" class="coin-img" />
+          <span class="symbol">BTC</span>
+        </div>
+        <span class="price" id="bitcoin-price">Loading...</span>
+      </div>
+      <div class="coin" data-id="ethereum">
+        <div class="coin-left">
+          <img src="https://assets.coingecko.com/coins/images/279/large/ethereum.png" alt="ETH" class="coin-img" />
+          <span class="symbol">ETH</span>
+        </div>
+        <span class="price" id="ethereum-price">Loading...</span>
+      </div>
+      <div class="coin" data-id="tether">
+        <div class="coin-left">
+          <img src="https://assets.coingecko.com/coins/images/325/large/Tether-logo.png" alt="USDT" class="coin-img" />
+          <span class="symbol">USDT</span>
+        </div>
+        <span class="price" id="tether-price">Loading...</span>
+      </div>
+    </div>
+
+    <!-- Random Trade Quote -->
+    <div class="quote-box" id="quote-box">Loading Bullshit...</div>
+
+    <!-- Refresh Button -->
+    <button id="refresh-btn">Refresh</button>
+
+    <!-- Open Portfolio Button -->
+    <button id="open-portfolio">😈Mini Ali😈</button>
+
+  </div>
+
+  <!-- Last Update Text -->
+  <div class="updated" id="last-updated">💸 Last Time Since Burning money: -- 💸</div>
+
+  <!-- Portfolio Overlay -->
+  <div class="portfolio-overlay" id="portfolio-overlay">
+    <div class="portfolio-widget">
+      <h3>💰Portfolio💰</h3>
+      <div class="coin-row">
+        <span class="coin-label">BTC</span>
+        <input type="number" id="hold-btc" placeholder="0.0001" />
+        <span id="val-btc" class="coin-value">--</span>
+        <span id="emoji-btc" class="coin-emoji">🤔</span>
+      </div>
+      <div class="coin-row">
+        <span class="coin-label">ETH</span>
+        <input type="number" id="hold-eth" placeholder="0.001" />
+        <span id="val-eth" class="coin-value">--</span>
+        <span id="emoji-eth" class="coin-emoji">🤔</span>
+      </div>
+      <div class="coin-row">
+        <span class="coin-label">USDT</span>
+        <input type="number" id="hold-usdt" placeholder="10" />
+        <span id="val-usdt" class="coin-value">--</span>
+        <span id="emoji-usdt" class="coin-emoji">🤔</span>
+      </div>
+      <hr />
+      <div class="total-row">
+        Total: <span id="val-total">--</span>
+      </div>
+      <div class="portfolio-buttons">
+        <button id="save-portfolio">🔥Money</button>
+        <button id="reset-portfolio">Mercy🏳️</button>
+        <button id="close-portfolio">❌</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
