@@ -44,7 +44,7 @@ const API_BASE = "https://ali-crypto-house-hardfork.onrender.com/api";
 const coins = ["bitcoin", "ethereum", "tether"];
 let lastPrices = {};
 
-// ------------------------ HELPER ------------------------
+// ------------------------ Bug Fix ------------------------
 function formatPrice(n) {
   if (!n) return "N/A";
   return n >= 1000
@@ -52,7 +52,7 @@ function formatPrice(n) {
     : n.toFixed(2);
 }
 
-// ------------------------ FETCH PRICES ------------------------
+// ------------------------ FETCH PRICES From Back End ------------------------
 async function fetchPrices() {
   try {
     const res = await fetch(`${API_BASE}/prices`);
@@ -154,9 +154,9 @@ searchBtn.addEventListener("click", async () => {
   searchInput.disabled = true;
   searchInput.style.opacity = "0.6";
   await new Promise((r) => setTimeout(r, 1200));
-  alert("Oops! Couldn't afford an API 💀 I give up 😜");
+  alert("Oops! You are not one of the Chosen😜");
   searchInput.value = "";
-  searchInput.disabled = false;
+  searchInput.disabled = True;
   searchInput.placeholder = originalPlaceholder;
   searchInput.style.opacity = "1";
   searchInput.focus();
