@@ -113,7 +113,7 @@ app.get("/api/report", (req, res) => {
 
     // ----- TITLE -----
     doc.fontSize(22).font("Helvetica-Bold")
-      .text("💰 Ali Crypto House - Portfolio Report 💰", { align: "center" });
+      .text("Ali Crypto House - Portfolio Report", { align: "center" });
     doc.moveDown(1);
 
     // ----- TIMESTAMP -----
