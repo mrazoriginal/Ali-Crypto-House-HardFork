@@ -231,14 +231,12 @@ body {
 /* PDF Download Button */
 #download-report {
   position: absolute;
-  top: 50%;                
-  right: -50px;   
-  transform: translateY(-50%); 
+  top: 15px;
+  right: 15px;
   background: var(--accent);
   color: white;
   border: none;
   border-radius: 50%;
-  padding: 6px 12px;
   width: 40px;
   height: 40px;
   font-size: 18px;
@@ -246,12 +244,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2;
+  z-index: 1000;
   box-shadow: 0 0 10px rgba(138,43,226,0.7);
 }
 #download-report:hover {
   background: #a07bff;
-  transform: translateY(-50%) scale(1.1);
+  transform: scale(1.1);
 }
 
 /* Open Portfolio Button */
