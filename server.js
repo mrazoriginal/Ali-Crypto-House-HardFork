@@ -85,7 +85,7 @@ app.post("/api/portfolio", (req, res) => {
 });
 
 // -------------------- PDF Report --------------------
-app.get("/api/report", async (req, res) => {
+app.get("/api/report", (req, res) => {
   try {
     // Load portfolio
     let portfolio = {};
@@ -93,52 +93,58 @@ app.get("/api/report", async (req, res) => {
       portfolio = JSON.parse(fs.readFileSync(PORTFOLIO_FILE, "utf-8"));
     }
 
-    // Fetch latest prices if empty
-    const coins = ["bitcoin", "ethereum", "tether"];
-    if (!lastPrices || Object.keys(lastPrices).length === 0) {
-      const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coins.join(
-        ","
-      )}&vs_currencies=usd`;
-      const response = await fetch(url);
-      lastPrices = await response.json();
-    }
-
     // Create PDF
     const doc = new PDFDocument({ margin: 30, size: "A4" });
+
+    // Set response headers
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", "attachment; filename=portfolio_report.pdf");
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=portfolio_report.pdf"
+    );
+
     doc.pipe(res);
 
-    // Title
-    doc.fontSize(20).text("💰 Ali Crypto House - Portfolio Report 💰", { align: "center" });
-    doc.moveDown();
+    // ----- TITLE -----
+    doc.fontSize(22).font("Helvetica-Bold")
+      .text("💰 Ali Crypto House - Portfolio Report 💰", { align: "center" });
+    doc.moveDown(1);
 
-    // Timestamp
-    doc.fontSize(12).text(`Generated: ${new Date().toLocaleString()}`);
-    doc.moveDown();
+    // ----- TIMESTAMP -----
+    doc.fontSize(12).font("Helvetica")
+      .text(`Generated: ${new Date().toLocaleString()}`, { align: "right" });
+    doc.moveDown(1);
 
-    // Table header
-    doc.fontSize(14).text("Coin      Holdings      Price (USD)      Value (USD)");
+    // ----- TABLE HEADER -----
+    doc.fontSize(14).font("Helvetica-Bold");
+    doc.text("Coin", 50, doc.y, { continued: true });
+    doc.text("Holdings", 150, doc.y, { continued: true });
+    doc.text("Price (USD)", 250, doc.y, { continued: true });
+    doc.text("Value (USD)", 370, doc.y);
+    doc.moveDown(0.5);
+    doc.moveTo(50, doc.y).lineTo(500, doc.y).stroke();
     doc.moveDown(0.5);
 
-    // Coins
+    // ----- TABLE ROWS -----
+    const coins = ["bitcoin", "ethereum", "tether"];
     let totalValue = 0;
+    doc.fontSize(12).font("Helvetica");
+
     coins.forEach((coin) => {
       const amount = portfolio[coin] || 0;
       const price = lastPrices[coin]?.usd || 0;
       const value = amount * price;
       totalValue += value;
 
-      const line = `${coin.toUpperCase()}      ${amount}      $${price.toFixed(
-        2
-      )}      $${value.toFixed(2)}`;
-      doc.text(line);
+      doc.text(coin.toUpperCase(), 50, doc.y, { continued: true });
+      doc.text(amount.toString(), 150, doc.y, { continued: true });
+      doc.text(`$${price.toFixed(2)}`, 250, doc.y, { continued: true });
+      doc.text(`$${value.toFixed(2)}`, 370, doc.y);
     });
 
-    doc.moveDown();
-    doc.fontSize(14).text(`Total Portfolio Value: $${totalValue.toFixed(2)}`, {
-      align: "right",
-    });
+    doc.moveDown(1);
+    doc.fontSize(14).font("Helvetica-Bold")
+      .text(`Total Portfolio Value: $${totalValue.toFixed(2)}`, { align: "right" });
 
     doc.end();
   } catch (err) {
