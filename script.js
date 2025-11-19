@@ -272,3 +272,26 @@ function updatePortfolio() {
   });
   totalVal.textContent = `$${total.toFixed(2)}`;
 }
+
+// Portfolio Report
+const downloadReportBtn = document.getElementById("download-report");
+
+downloadReportBtn.addEventListener("click", async () => {
+  try {
+    const res = await fetch(`${API_BASE}/report`);
+    if (!res.ok) throw new Error("Failed to fetch report");
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "portfolio_report.pdf";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error("Error downloading report:", err);
+    alert("Failed to download report 😓");
+  }
+});
