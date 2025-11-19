@@ -1,4 +1,3 @@
-// server.js
 import express from "express";
 import fetch from "node-fetch";
 import cors from "cors";
@@ -14,7 +13,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// -------------------- Middleware --------------------
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -24,15 +23,20 @@ const quotesLimiter = rateLimit({
   max: 100,
 });
 
+// -------------------- Global Variables --------------------
+const PORTFOLIO_FILE = path.join(__dirname, "portfolio.json");
+let lastPrices = {}; 
+
 // -------------------- Coin Prices --------------------
 app.get("/api/prices", async (req, res) => {
   try {
     const coins = ["bitcoin", "ethereum", "tether"];
-    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coins.join(
-      ","
-    )}&vs_currencies=usd`;
+    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coins.join(",")}&vs_currencies=usd`;
     const response = await fetch(url);
     const data = await response.json();
+
+    lastPrices = data; // <-- store prices in memory
+
     res.json(data);
   } catch (err) {
     console.error("Prices fetch error:", err);
@@ -44,9 +48,7 @@ app.get("/api/prices", async (req, res) => {
 app.get("/api/quotes", quotesLimiter, (req, res) => {
   try {
     const filePath = path.join(__dirname, "quotes.json");
-    if (!fs.existsSync(filePath)) {
-      fs.writeFileSync(filePath, JSON.stringify([], null, 2));
-    }
+    if (!fs.existsSync(filePath)) fs.writeFileSync(filePath, JSON.stringify([], null, 2));
     const raw = fs.readFileSync(filePath, "utf-8");
     const quotes = JSON.parse(raw);
     res.json(quotes);
@@ -57,8 +59,6 @@ app.get("/api/quotes", quotesLimiter, (req, res) => {
 });
 
 // -------------------- Portfolio --------------------
-const PORTFOLIO_FILE = path.join(__dirname, "portfolio.json");
-
 app.get("/api/portfolio", (req, res) => {
   try {
     if (!fs.existsSync(PORTFOLIO_FILE)) fs.writeFileSync(PORTFOLIO_FILE, "{}");
