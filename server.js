@@ -26,7 +26,7 @@ const quotesLimiter = rateLimit({
 
 // -------------------- Global Variables --------------------
 const PORTFOLIO_FILE = path.join(__dirname, "portfolio.json");
-let lastPrices = {}; // store latest prices for PDF
+const LAST_PRICES_FILE = path.join(__dirname, "lastPrices.json");
 
 // -------------------- Coin Prices --------------------
 app.get("/api/prices", async (req, res) => {
@@ -38,8 +38,8 @@ app.get("/api/prices", async (req, res) => {
     const response = await fetch(url);
     const data = await response.json();
 
-    lastPrices = data; // save latest prices
-
+    // Save last prices to memory and JSON file
+    fs.writeFileSync(LAST_PRICES_FILE, JSON.stringify(data, null, 2));
     res.json(data);
   } catch (err) {
     console.error("Prices fetch error:", err);
@@ -91,6 +91,12 @@ app.get("/api/report", (req, res) => {
     let portfolio = {};
     if (fs.existsSync(PORTFOLIO_FILE)) {
       portfolio = JSON.parse(fs.readFileSync(PORTFOLIO_FILE, "utf-8"));
+    }
+
+    // Load last prices from file
+    let lastPrices = {};
+    if (fs.existsSync(LAST_PRICES_FILE)) {
+      lastPrices = JSON.parse(fs.readFileSync(LAST_PRICES_FILE, "utf-8"));
     }
 
     // Create PDF
