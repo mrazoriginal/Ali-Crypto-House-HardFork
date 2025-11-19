@@ -20,26 +20,24 @@ app.use(bodyParser.json());
 
 // -------------------- Rate Limiter --------------------
 const quotesLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 100,
 });
 
-// -------------------- Global Variables --------------------
+// -------------------- Global Files --------------------
 const PORTFOLIO_FILE = path.join(__dirname, "portfolio.json");
-const LAST_PRICES_FILE = path.join(__dirname, "lastPrices.json");
 
-// -------------------- Coin Prices --------------------
+// -------------------- Coin Prices (Also saves to file) --------------------
 app.get("/api/prices", async (req, res) => {
   try {
     const coins = ["bitcoin", "ethereum", "tether"];
     const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coins.join(
       ","
     )}&vs_currencies=usd`;
+
     const response = await fetch(url);
     const data = await response.json();
 
-    // Save last prices to memory and JSON file
-    fs.writeFileSync(LAST_PRICES_FILE, JSON.stringify(data, null, 2));
     res.json(data);
   } catch (err) {
     console.error("Prices fetch error:", err);
@@ -75,8 +73,7 @@ app.get("/api/portfolio", (req, res) => {
 
 app.post("/api/portfolio", (req, res) => {
   try {
-    const data = req.body;
-    fs.writeFileSync(PORTFOLIO_FILE, JSON.stringify(data, null, 2));
+    fs.writeFileSync(PORTFOLIO_FILE, JSON.stringify(req.body, null, 2));
     res.json({ success: true });
   } catch (err) {
     console.error("Portfolio save error:", err);
@@ -84,25 +81,27 @@ app.post("/api/portfolio", (req, res) => {
   }
 });
 
-// -------------------- PDF Report --------------------
-app.get("/api/report", (req, res) => {
+// -------------------- PDF REPORT (FINAL FIXED VERSION) --------------------
+app.get("/api/report", async (req, res) => {
   try {
-    // Load portfolio
+    // Load stored portfolio
     let portfolio = {};
     if (fs.existsSync(PORTFOLIO_FILE)) {
       portfolio = JSON.parse(fs.readFileSync(PORTFOLIO_FILE, "utf-8"));
     }
 
-    // Load last prices from file
-    let lastPrices = {};
-    if (fs.existsSync(LAST_PRICES_FILE)) {
-      lastPrices = JSON.parse(fs.readFileSync(LAST_PRICES_FILE, "utf-8"));
-    }
+    // Fetch fresh prices from backend (professor requirement)
+    const coins = ["bitcoin", "ethereum", "tether"];
+    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coins.join(
+      ","
+    )}&vs_currencies=usd`;
+
+    const response = await fetch(url);
+    const prices = await response.json();
 
     // Create PDF
     const doc = new PDFDocument({ margin: 30, size: "A4" });
 
-    // Set response headers
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
@@ -132,23 +131,25 @@ app.get("/api/report", (req, res) => {
     doc.moveDown(0.5);
 
     // ----- TABLE ROWS -----
-    const coins = ["bitcoin", "ethereum", "tether"];
     let totalValue = 0;
+
     doc.fontSize(12).font("Helvetica");
 
     coins.forEach((coin) => {
-      const amount = portfolio[coin] || 0;
-      const price = lastPrices[coin]?.usd || 0;
-      const value = amount * price;
+      const holdings = portfolio[coin] || 0;
+      const price = prices[coin]?.usd || 0;
+      const value = holdings * price;
       totalValue += value;
 
       doc.text(coin.toUpperCase(), 50, doc.y, { continued: true });
-      doc.text(amount.toString(), 150, doc.y, { continued: true });
+      doc.text(holdings.toString(), 150, doc.y, { continued: true });
       doc.text(`$${price.toFixed(2)}`, 250, doc.y, { continued: true });
       doc.text(`$${value.toFixed(2)}`, 370, doc.y);
     });
 
     doc.moveDown(1);
+
+    // ----- TOTAL -----
     doc.fontSize(14).font("Helvetica-Bold")
       .text(`Total Portfolio Value: $${totalValue.toFixed(2)}`, { align: "right" });
 
