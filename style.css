@@ -246,13 +246,15 @@ body {
   background: #a07bff;
 }
 .portfolio-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  position: relative;
+  text-align: center;
   margin-bottom: 15px;
 }
 
 #download-report {
+  position: absolute;
+  top: 0;
+  right: 0;
   background: none;
   border: none;
   font-size: 20px;
