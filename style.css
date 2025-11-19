@@ -262,7 +262,7 @@ body {
 }
 
 #download-report:hover {
-  color: #ff6464; /* or any glow you like */
+  color: #ff6464;
   transform: scale(1.2);
   transition: 0.2s ease;
 }
