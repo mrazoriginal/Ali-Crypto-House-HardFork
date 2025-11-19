@@ -1,12 +1,12 @@
-/* ---------- GLOBAL COLORS ---------- */
+/* global Theme Colors*/
 :root {
-  --accent: #8a2be2; /* Main purple color */
-  --bg1: #140025;    /* Background */
-  --up: #00ffb7;     /* Price up */
-  --down: #ff6464;   /* Price down */
+  --accent: #8a2be2; /* Main purple color used for buttons and glow */
+  --bg1: #140025; /* Deep background color */
+  --up: #00ffb7; /* Color for price going up */
+  --down: #ff6464; /* Color for price going down */
 }
 
-/* ---------- BODY ---------- */
+/* Page Body Setup */
 body {
   margin: 0;
   font-family: "Inter", sans-serif;
@@ -19,7 +19,6 @@ body {
   overflow-x: hidden;
 }
 
-/* ---------- CANVAS ---------- */
 #main-canvas {
   position: fixed;
   top: 0;
@@ -30,7 +29,7 @@ body {
   pointer-events: none;
 }
 
-/* ---------- MAIN BOX ---------- */
+/* main box to the top */
 .main-box,
 .header-box,
 .updated {
@@ -38,7 +37,7 @@ body {
   z-index: 1;
 }
 
-/* ---------- HEADER ---------- */
+/* Header Style */
 .header-box {
   width: 90%;
   max-width: 800px;
@@ -53,7 +52,6 @@ body {
   backdrop-filter: blur(4px);
 }
 
-/* ---------- MAIN CONTENT ---------- */
 .main-box {
   width: 90%;
   max-width: 800px;
@@ -66,7 +64,6 @@ body {
   backdrop-filter: blur(4px);
 }
 
-/* ---------- SEARCH ---------- */
 .search-container {
   display: flex;
   justify-content: center;
@@ -74,10 +71,16 @@ body {
   margin-bottom: 20px;
   animation: floatSearch 2s ease-in-out infinite alternate;
 }
+
 @keyframes floatSearch {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-6px); }
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-6px);
+  }
 }
+
 #search-input {
   padding: 15px;
   border-radius: 20px;
@@ -86,6 +89,7 @@ body {
   max-width: 300px;
   outline: none;
 }
+
 #search-btn,
 #refresh-btn {
   background: var(--accent);
@@ -98,6 +102,7 @@ body {
   position: relative;
   overflow: hidden;
 }
+
 #refresh-btn {
   display: block;
   margin: 20px auto 0 auto;
@@ -106,12 +111,12 @@ body {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
 }
 
-/* ---------- COIN PRICES ---------- */
 .prices {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
+
 .coin {
   display: flex;
   align-items: center;
@@ -121,19 +126,25 @@ body {
   border-radius: 12px;
   font-size: 21px;
 }
+
 .coin-left {
   display: flex;
   align-items: center;
   gap: 10px;
 }
+
 .coin-img {
   width: 40px;
   height: 40px;
 }
-.coin .price.up { color: var(--up); }
-.coin .price.down { color: var(--down); }
 
-/* ---------- LAST UPDATED ---------- */
+.coin .price.up {
+  color: var(--up);
+}
+.coin .price.down {
+  color: var(--down);
+}
+
 .updated {
   margin-top: 15px;
   font-size: 14px;
@@ -142,7 +153,6 @@ body {
   font-weight: 600;
 }
 
-/* ---------- QUOTE BOX ---------- */
 .quote-box {
   text-align: center;
   font-style: italic;
@@ -152,7 +162,6 @@ body {
   transition: opacity 1s ease;
 }
 
-/* ---------- EMOJIS ---------- */
 .particle,
 .emoji {
   position: absolute;
@@ -163,7 +172,7 @@ body {
   transition: transform 1.2s ease, opacity 1.2s ease;
 }
 
-/* ---------- PORTFOLIO OVERLAY ---------- */
+/* Portfolio Overlay */
 .portfolio-overlay {
   display: none;
   position: fixed;
@@ -171,52 +180,36 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.65);
+  background: rgba(0, 0, 0, 0.6);
   justify-content: center;
   align-items: center;
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(5px);
   z-index: 9999;
 }
 
-/* ---------- PORTFOLIO WIDGET ---------- */
+/* Portfolio Widget inside overlay */
 .portfolio-widget {
   background: rgba(20, 0, 37, 0.95);
   border-radius: 20px;
   padding: 20px;
-  width: 280px;
+  width: 260px;
   max-width: 90%;
-  box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
+  box-shadow: 0 0 15px rgba(138, 43, 226, 0.4);
   color: white;
   font-family: Inter, sans-serif;
-  position: relative;
 }
 
-/* ---------- PDF BUTTON ---------- */
-#download-report {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 24px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: white;
-  z-index: 1000;
-}
-#download-report:hover {
-  transform: scale(1.2);
-  color: #ff6464;
-  transition: 0.2s ease;
-}
-
-/* ---------- COIN ROWS ---------- */
 .coin-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 10px;
 }
-.coin-label { width: 35px; font-weight: bold; }
+
+.coin-label {
+  width: 35px;
+  font-weight: bold;
+}
 .coin-row input {
   width: 60px;
   border-radius: 12px;
@@ -224,14 +217,19 @@ body {
   text-align: center;
   border: none;
 }
-.coin-value { width: 55px; text-align: right; }
-.coin-emoji { width: 25px; text-align: center; }
+.coin-value {
+  width: 55px;
+  text-align: right;
+}
+.coin-emoji {
+  width: 25px;
+  text-align: center;
+}
 
-/* ---------- PORTFOLIO BUTTONS ---------- */
 .portfolio-buttons {
   display: flex;
   justify-content: space-between;
-  margin-top: 12px;
+  margin-top: 10px;
 }
 .portfolio-buttons button {
   background: var(--accent);
@@ -248,10 +246,61 @@ body {
   background: #a07bff;
 }
 
-/* ---------- TOTAL ROW ---------- */
-.total-row {
-  margin-top: 10px;
-  font-size: 16px;
-  font-weight: bold;
-  text-align: right;
+/* Open Portfolio Button */
+#open-portfolio {
+  background: linear-gradient(45deg, #8a2be2, #ff6ec7);
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 50px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(138, 43, 226, 0.7),
+    0 0 30px rgba(255, 110, 199, 0.5);
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  text-shadow: 0 0 5px white;
+  animation: pulse 2s infinite;
+}
+
+#open-portfolio:hover {
+  transform: scale(1.1) translateY(-2px);
+  box-shadow: 0 0 25px rgba(138, 43, 226, 0.9),
+    0 0 45px rgba(255, 110, 199, 0.7);
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 15px rgba(138, 43, 226, 0.7),
+      0 0 30px rgba(255, 110, 199, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(138, 43, 226, 0.9),
+      0 0 40px rgba(255, 110, 199, 0.7);
+  }
+  100% {
+    box-shadow: 0 0 15px rgba(138, 43, 226, 0.7),
+      0 0 30px rgba(255, 110, 199, 0.5);
+  }
+}
+
+#open-portfolio::after {
+  content: "💰";
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  font-size: 20px;
+  animation: bounce 1.5s infinite alternate;
+}
+
+@keyframes bounce {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-5px);
+  }
 }
