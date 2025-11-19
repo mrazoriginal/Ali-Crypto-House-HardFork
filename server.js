@@ -20,7 +20,7 @@ app.use(bodyParser.json());
 
 // -------------------- Rate Limiter --------------------
 const quotesLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 100,
 });
 
@@ -32,13 +32,10 @@ const LAST_PRICES_FILE = path.join(__dirname, "lastPrices.json");
 app.get("/api/prices", async (req, res) => {
   try {
     const coins = ["bitcoin", "ethereum", "tether"];
-    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coins.join(
-      ","
-    )}&vs_currencies=usd`;
+    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coins.join(",")}&vs_currencies=usd`;
     const response = await fetch(url);
     const data = await response.json();
 
-    // Save last prices to memory and JSON file
     fs.writeFileSync(LAST_PRICES_FILE, JSON.stringify(data, null, 2));
     res.json(data);
   } catch (err) {
@@ -53,8 +50,7 @@ app.get("/api/quotes", quotesLimiter, (req, res) => {
     const filePath = path.join(__dirname, "quotes.json");
     if (!fs.existsSync(filePath)) fs.writeFileSync(filePath, JSON.stringify([], null, 2));
     const raw = fs.readFileSync(filePath, "utf-8");
-    const quotes = JSON.parse(raw);
-    res.json(quotes);
+    res.json(JSON.parse(raw));
   } catch (err) {
     console.error("Quotes fetch error:", err);
     res.status(500).json({ error: "Failed to load quotes" });
@@ -75,8 +71,7 @@ app.get("/api/portfolio", (req, res) => {
 
 app.post("/api/portfolio", (req, res) => {
   try {
-    const data = req.body;
-    fs.writeFileSync(PORTFOLIO_FILE, JSON.stringify(data, null, 2));
+    fs.writeFileSync(PORTFOLIO_FILE, JSON.stringify(req.body, null, 2));
     res.json({ success: true });
   } catch (err) {
     console.error("Portfolio save error:", err);
@@ -85,46 +80,36 @@ app.post("/api/portfolio", (req, res) => {
 });
 
 // -------------------- PDF Report --------------------
-// -------------------- PDF Report --------------------
 app.get("/api/report", (req, res) => {
   try {
     // Load portfolio
-    let portfolio = {};
-    if (fs.existsSync(PORTFOLIO_FILE)) {
-      portfolio = JSON.parse(fs.readFileSync(PORTFOLIO_FILE, "utf-8"));
-    }
+    if (!fs.existsSync(PORTFOLIO_FILE)) fs.writeFileSync(PORTFOLIO_FILE, "{}");
+    const portfolio = JSON.parse(fs.readFileSync(PORTFOLIO_FILE, "utf-8"));
 
-    // Load last prices from file
-    let lastPrices = {};
-    if (fs.existsSync(LAST_PRICES_FILE)) {
-      lastPrices = JSON.parse(fs.readFileSync(LAST_PRICES_FILE, "utf-8"));
+    // Load prices
+    if (!fs.existsSync(LAST_PRICES_FILE)) {
+      return res.status(500).json({ error: "Price data not available. Run /api/prices first." });
     }
+    const lastPrices = JSON.parse(fs.readFileSync(LAST_PRICES_FILE, "utf-8"));
 
-    // Create PDF
     const doc = new PDFDocument({ margin: 30, size: "A4" });
-
-    // Set response headers
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader(
-      "Content-Disposition",
-      "attachment; filename=portfolio_report.pdf"
-    );
-
+    res.setHeader("Content-Disposition", "attachment; filename=portfolio_report.pdf");
     doc.pipe(res);
 
     // ----- TITLE -----
     doc.fontSize(22).font("Helvetica-Bold")
-      .text("Ali Crypto House - Portfolio Report", { align: "center" });
+       .text("Ali Crypto House - Portfolio Report", { align: "center" });
     doc.moveDown(1);
 
     // ----- TIMESTAMP -----
     doc.fontSize(12).font("Helvetica")
-      .text(`Generated: ${new Date().toLocaleString()}`, { align: "right" });
+       .text(`Generated: ${new Date().toLocaleString()}`, { align: "right" });
     doc.moveDown(1);
 
     // ----- TABLE HEADER -----
     const startX = 50;
-    const colWidths = [100, 100, 100, 100]; // Coin | Holdings | Price | Value
+    const colWidths = [100, 100, 100, 100]; 
     doc.fontSize(14).font("Helvetica-Bold");
     let x = startX;
     doc.text("Coin", x, doc.y); x += colWidths[0];
@@ -141,11 +126,12 @@ app.get("/api/report", (req, res) => {
     doc.fontSize(12).font("Helvetica");
     coins.forEach((coin) => {
       const amount = portfolio[coin] || 0;
-      const price = lastPrices[coin]?.usd || 0;
+      const price = lastPrices[coin]?.usd;
+      if (price === undefined) throw new Error(`Price for ${coin} not available. Run /api/prices first.`);
       const value = amount * price;
       totalValue += value;
 
-      let x = startX;
+      x = startX;
       doc.text(coin.toUpperCase(), x, doc.y); x += colWidths[0];
       doc.text(amount.toString(), x, doc.y); x += colWidths[1];
       doc.text(`$${price.toFixed(2)}`, x, doc.y); x += colWidths[2];
@@ -156,12 +142,12 @@ app.get("/api/report", (req, res) => {
     // ----- TOTAL -----
     doc.moveDown(1);
     doc.fontSize(14).font("Helvetica-Bold")
-      .text(`Total Portfolio Value: $${totalValue.toFixed(2)}`, { align: "right" });
+       .text(`Total Portfolio Value: $${totalValue.toFixed(2)}`, { align: "right" });
 
     doc.end();
   } catch (err) {
     console.error("Report generation error:", err);
-    res.status(500).json({ error: "Failed to generate report" });
+    res.status(500).json({ error: err.message });
   }
 });
 
