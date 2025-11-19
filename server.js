@@ -60,7 +60,7 @@ app.get("/api/quotes", quotesLimiter, (req, res) => {
 });
 
 // -------------------- Portfolio --------------------
-app.get("/api/portfolio", (req, res) => {
+app.get("/api/portfolio", quotesLimiter, (req, res) => {
   try {
     if (!fs.existsSync(PORTFOLIO_FILE)) fs.writeFileSync(PORTFOLIO_FILE, "{}");
     const raw = fs.readFileSync(PORTFOLIO_FILE, "utf-8");
