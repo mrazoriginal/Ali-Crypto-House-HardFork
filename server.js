@@ -76,7 +76,7 @@ app.get("/api/portfolio", quotesLimiter, (req, res) => {
   }
 });
 
-app.post("/api/portfolio", (req, res) => {
+app.post("/api/portfolio", quotesLimiter, (req, res) => {
   try {
     fs.writeFileSync(PORTFOLIO_FILE, JSON.stringify(req.body, null, 2));
     res.json({ success: true });
