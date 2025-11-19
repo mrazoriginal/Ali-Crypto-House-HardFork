@@ -66,39 +66,48 @@
   <div class="updated" id="last-updated">💸 Last Time Since Burning money: -- 💸</div>
 
   <!-- Portfolio Overlay -->
-  <div class="portfolio-overlay" id="portfolio-overlay">
-    <div class="portfolio-widget">
-      <h3>💰Portfolio💰</h3>
-      <button id="download-report" title="Download PDF">📄</button>
-      <div class="coin-row">
-        <span class="coin-label">BTC</span>
-        <input type="number" id="hold-btc" placeholder="0.001" />
-        <span id="val-btc" class="coin-value">--</span>
-        <span id="emoji-btc" class="coin-emoji">🤔</span>
-      </div>
-      <div class="coin-row">
-        <span class="coin-label">ETH</span>
-        <input type="number" id="hold-eth" placeholder="0.01" />
-        <span id="val-eth" class="coin-value">--</span>
-        <span id="emoji-eth" class="coin-emoji">🤔</span>
-      </div>
-      <div class="coin-row">
-        <span class="coin-label">USDT</span>
-        <input type="number" id="hold-usdt" placeholder="10" />
-        <span id="val-usdt" class="coin-value">--</span>
-        <span id="emoji-usdt" class="coin-emoji">🤔</span>
-      </div>
-      <hr />
-      <div class="total-row">
-        Total: <span id="val-total">--</span>
-      </div>
-      <div class="portfolio-buttons">
-        <button id="save-portfolio">🧮</button>
-        <button id="reset-portfolio">🗑️</button>
-        <button id="close-portfolio">❌</button>
-      </div>
+<div class="portfolio-overlay" id="portfolio-overlay">
+  <!-- PDF Download Button Top-Right -->
+  <button id="download-report" title="Download PDF">📄</button>
+
+  <!-- Portfolio Widget -->
+  <div class="portfolio-widget">
+    <h3>💰 Portfolio 💰</h3>
+
+    <div class="coin-row">
+      <span class="coin-label">BTC</span>
+      <input type="number" id="hold-btc" placeholder="0.001" />
+      <span id="val-btc" class="coin-value">--</span>
+      <span id="emoji-btc" class="coin-emoji">🤔</span>
+    </div>
+
+    <div class="coin-row">
+      <span class="coin-label">ETH</span>
+      <input type="number" id="hold-eth" placeholder="0.01" />
+      <span id="val-eth" class="coin-value">--</span>
+      <span id="emoji-eth" class="coin-emoji">🤔</span>
+    </div>
+
+    <div class="coin-row">
+      <span class="coin-label">USDT</span>
+      <input type="number" id="hold-usdt" placeholder="10" />
+      <span id="val-usdt" class="coin-value">--</span>
+      <span id="emoji-usdt" class="coin-emoji">🤔</span>
+    </div>
+
+    <hr />
+
+    <div class="total-row">
+      Total: <span id="val-total">--</span>
+    </div>
+
+    <div class="portfolio-buttons">
+      <button id="save-portfolio">🧮</button>
+      <button id="reset-portfolio">🗑️</button>
+      <button id="close-portfolio">❌</button>
     </div>
   </div>
+</div>
 
   <script src="script.js"></script>
 </body>
