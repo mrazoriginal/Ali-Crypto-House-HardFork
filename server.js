@@ -1,4 +1,3 @@
-// server.js
 import express from "express";
 import fetch from "node-fetch";
 import cors from "cors";
@@ -7,6 +6,7 @@ import fs from "fs";
 import path from "path";
 import rateLimit from "express-rate-limit";
 import { fileURLToPath } from "url";
+import PDFDocument from "pdfkit";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,7 +14,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// -------------------- Middleware --------------------
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -24,15 +24,20 @@ const quotesLimiter = rateLimit({
   max: 100,
 });
 
+// -------------------- Global Variables --------------------
+const PORTFOLIO_FILE = path.join(__dirname, "portfolio.json");
+let lastPrices = {}; // <-- store latest prices for report
+
 // -------------------- Coin Prices --------------------
 app.get("/api/prices", async (req, res) => {
   try {
     const coins = ["bitcoin", "ethereum", "tether"];
-    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coins.join(
-      ","
-    )}&vs_currencies=usd`;
+    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coins.join(",")}&vs_currencies=usd`;
     const response = await fetch(url);
     const data = await response.json();
+
+    lastPrices = data; // <-- Step: store prices in memory
+
     res.json(data);
   } catch (err) {
     console.error("Prices fetch error:", err);
@@ -44,9 +49,7 @@ app.get("/api/prices", async (req, res) => {
 app.get("/api/quotes", quotesLimiter, (req, res) => {
   try {
     const filePath = path.join(__dirname, "quotes.json");
-    if (!fs.existsSync(filePath)) {
-      fs.writeFileSync(filePath, JSON.stringify([], null, 2));
-    }
+    if (!fs.existsSync(filePath)) fs.writeFileSync(filePath, JSON.stringify([], null, 2));
     const raw = fs.readFileSync(filePath, "utf-8");
     const quotes = JSON.parse(raw);
     res.json(quotes);
@@ -57,8 +60,6 @@ app.get("/api/quotes", quotesLimiter, (req, res) => {
 });
 
 // -------------------- Portfolio --------------------
-const PORTFOLIO_FILE = path.join(__dirname, "portfolio.json");
-
 app.get("/api/portfolio", (req, res) => {
   try {
     if (!fs.existsSync(PORTFOLIO_FILE)) fs.writeFileSync(PORTFOLIO_FILE, "{}");
@@ -78,6 +79,65 @@ app.post("/api/portfolio", (req, res) => {
   } catch (err) {
     console.error("Portfolio save error:", err);
     res.status(500).json({ error: "Failed to save portfolio" });
+  }
+});
+
+// -------------------- PDF Report --------------------
+app.get("/api/report", (req, res) => {
+  try {
+    // Load portfolio
+    let portfolio = {};
+    if (fs.existsSync(PORTFOLIO_FILE)) {
+      portfolio = JSON.parse(fs.readFileSync(PORTFOLIO_FILE, "utf-8"));
+    }
+
+    // Create PDF
+    const doc = new PDFDocument({ margin: 30, size: "A4" });
+
+    // Set response headers
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=portfolio_report.pdf"
+    );
+
+    doc.pipe(res);
+
+    // Title
+    doc.fontSize(20).text("Ali Crypto House - Portfolio Report", { align: "center" });
+    doc.moveDown();
+
+    // Timestamp
+    doc.fontSize(12).text(`Generated: ${new Date().toLocaleString()}`);
+    doc.moveDown();
+
+    // Table header
+    doc.fontSize(14).text("Coin      Holdings      Price (USD)      Value (USD)");
+    doc.moveDown();
+
+    // Coins
+    let totalValue = 0;
+    const coins = ["bitcoin", "ethereum", "tether"];
+    coins.forEach((coin) => {
+      const amount = portfolio[coin] || 0;
+      const price = lastPrices[coin]?.usd || 0;
+      const value = amount * price;
+      totalValue += value;
+      const line = `${coin.toUpperCase()}      ${amount}      $${price.toFixed(
+        2
+      )}      $${value.toFixed(2)}`;
+      doc.text(line);
+    });
+
+    doc.moveDown();
+    doc.fontSize(14).text(`Total Portfolio Value: $${totalValue.toFixed(2)}`, {
+      align: "right",
+    });
+
+    doc.end();
+  } catch (err) {
+    console.error("Report generation error:", err);
+    res.status(500).json({ error: "Failed to generate report" });
   }
 });
 
