@@ -26,17 +26,19 @@ const quotesLimiter = rateLimit({
 
 // -------------------- Global Variables --------------------
 const PORTFOLIO_FILE = path.join(__dirname, "portfolio.json");
-let lastPrices = {}; // <-- store latest prices for report
+let lastPrices = {}; // store latest prices for PDF
 
 // -------------------- Coin Prices --------------------
 app.get("/api/prices", async (req, res) => {
   try {
     const coins = ["bitcoin", "ethereum", "tether"];
-    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coins.join(",")}&vs_currencies=usd`;
+    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coins.join(
+      ","
+    )}&vs_currencies=usd`;
     const response = await fetch(url);
     const data = await response.json();
 
-    lastPrices = data; // <-- Step: store prices in memory
+    lastPrices = data; // save latest prices
 
     res.json(data);
   } catch (err) {
@@ -83,7 +85,7 @@ app.post("/api/portfolio", (req, res) => {
 });
 
 // -------------------- PDF Report --------------------
-app.get("/api/report", (req, res) => {
+app.get("/api/report", async (req, res) => {
   try {
     // Load portfolio
     let portfolio = {};
@@ -91,20 +93,24 @@ app.get("/api/report", (req, res) => {
       portfolio = JSON.parse(fs.readFileSync(PORTFOLIO_FILE, "utf-8"));
     }
 
+    // Fetch latest prices if empty
+    const coins = ["bitcoin", "ethereum", "tether"];
+    if (!lastPrices || Object.keys(lastPrices).length === 0) {
+      const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coins.join(
+        ","
+      )}&vs_currencies=usd`;
+      const response = await fetch(url);
+      lastPrices = await response.json();
+    }
+
     // Create PDF
     const doc = new PDFDocument({ margin: 30, size: "A4" });
-
-    // Set response headers
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader(
-      "Content-Disposition",
-      "attachment; filename=portfolio_report.pdf"
-    );
-
+    res.setHeader("Content-Disposition", "attachment; filename=portfolio_report.pdf");
     doc.pipe(res);
 
     // Title
-    doc.fontSize(20).text("Ali Crypto House - Portfolio Report", { align: "center" });
+    doc.fontSize(20).text("💰 Ali Crypto House - Portfolio Report 💰", { align: "center" });
     doc.moveDown();
 
     // Timestamp
@@ -113,16 +119,16 @@ app.get("/api/report", (req, res) => {
 
     // Table header
     doc.fontSize(14).text("Coin      Holdings      Price (USD)      Value (USD)");
-    doc.moveDown();
+    doc.moveDown(0.5);
 
     // Coins
     let totalValue = 0;
-    const coins = ["bitcoin", "ethereum", "tether"];
     coins.forEach((coin) => {
       const amount = portfolio[coin] || 0;
       const price = lastPrices[coin]?.usd || 0;
       const value = amount * price;
       totalValue += value;
+
       const line = `${coin.toUpperCase()}      ${amount}      $${price.toFixed(
         2
       )}      $${value.toFixed(2)}`;
