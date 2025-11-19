@@ -24,6 +24,11 @@ const quotesLimiter = rateLimit({
   max: 100,
 });
 
+// Limit report generation to prevent DoS (stricter limits, e.g., 10 req/15min)
+const reportLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // max 10 requests per windowMs
+});
 // -------------------- Global Files --------------------
 const PORTFOLIO_FILE = path.join(__dirname, "portfolio.json");
 
@@ -82,7 +87,7 @@ app.post("/api/portfolio", (req, res) => {
 });
 
 // -------------------- PDF REPORT (FINAL FIXED VERSION) --------------------
-app.get("/api/report", async (req, res) => {
+app.get("/api/report", reportLimiter, async (req, res) => {
   try {
     // Load stored portfolio
     let portfolio = {};
