@@ -245,6 +245,27 @@ body {
 .portfolio-buttons button:hover {
   background: #a07bff;
 }
+.portfolio-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+#download-report {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: white;
+  padding: 4px;
+}
+
+#download-report:hover {
+  color: #ff6464; /* or any glow you like */
+  transform: scale(1.2);
+  transition: 0.2s ease;
+}
 
 /* Open Portfolio Button */
 #open-portfolio {
