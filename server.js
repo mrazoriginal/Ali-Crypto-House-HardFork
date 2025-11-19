@@ -24,7 +24,6 @@ const quotesLimiter = rateLimit({
   max: 100,
 });
 
-// -------------------- Global Variables --------------------
 const PORTFOLIO_FILE = path.join(__dirname, "portfolio.json");
 let lastPrices = {}; // <-- store latest prices for report
 
@@ -83,7 +82,7 @@ app.post("/api/portfolio", (req, res) => {
 });
 
 // -------------------- PDF Report --------------------
-app.get("/api/report", (req, res) => {
+app.get("/api/report", reportLimiter, (req, res) => {
   try {
     // Load portfolio
     let portfolio = {};
