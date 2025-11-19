@@ -85,6 +85,7 @@ app.post("/api/portfolio", (req, res) => {
 });
 
 // -------------------- PDF Report --------------------
+// -------------------- PDF Report --------------------
 app.get("/api/report", (req, res) => {
   try {
     // Load portfolio
@@ -113,7 +114,7 @@ app.get("/api/report", (req, res) => {
 
     // ----- TITLE -----
     doc.fontSize(22).font("Helvetica-Bold")
-      .text("💰 Ali Crypto House - Portfolio Report 💰", { align: "center" });
+      .text("Ali Crypto House - Portfolio Report", { align: "center" });
     doc.moveDown(1);
 
     // ----- TIMESTAMP -----
@@ -122,32 +123,37 @@ app.get("/api/report", (req, res) => {
     doc.moveDown(1);
 
     // ----- TABLE HEADER -----
+    const startX = 50;
+    const colWidths = [100, 100, 100, 100]; // Coin | Holdings | Price | Value
     doc.fontSize(14).font("Helvetica-Bold");
-    doc.text("Coin", 50, doc.y, { continued: true });
-    doc.text("Holdings", 150, doc.y, { continued: true });
-    doc.text("Price (USD)", 250, doc.y, { continued: true });
-    doc.text("Value (USD)", 370, doc.y);
+    let x = startX;
+    doc.text("Coin", x, doc.y); x += colWidths[0];
+    doc.text("Holdings", x, doc.y); x += colWidths[1];
+    doc.text("Price (USD)", x, doc.y); x += colWidths[2];
+    doc.text("Value (USD)", x, doc.y);
     doc.moveDown(0.5);
-    doc.moveTo(50, doc.y).lineTo(500, doc.y).stroke();
+    doc.moveTo(startX, doc.y).lineTo(startX + colWidths.reduce((a,b)=>a+b,0), doc.y).stroke();
     doc.moveDown(0.5);
 
     // ----- TABLE ROWS -----
     const coins = ["bitcoin", "ethereum", "tether"];
     let totalValue = 0;
     doc.fontSize(12).font("Helvetica");
-
     coins.forEach((coin) => {
       const amount = portfolio[coin] || 0;
       const price = lastPrices[coin]?.usd || 0;
       const value = amount * price;
       totalValue += value;
 
-      doc.text(coin.toUpperCase(), 50, doc.y, { continued: true });
-      doc.text(amount.toString(), 150, doc.y, { continued: true });
-      doc.text(`$${price.toFixed(2)}`, 250, doc.y, { continued: true });
-      doc.text(`$${value.toFixed(2)}`, 370, doc.y);
+      let x = startX;
+      doc.text(coin.toUpperCase(), x, doc.y); x += colWidths[0];
+      doc.text(amount.toString(), x, doc.y); x += colWidths[1];
+      doc.text(`$${price.toFixed(2)}`, x, doc.y); x += colWidths[2];
+      doc.text(`$${value.toFixed(2)}`, x, doc.y);
+      doc.moveDown(1);
     });
 
+    // ----- TOTAL -----
     doc.moveDown(1);
     doc.fontSize(14).font("Helvetica-Bold")
       .text(`Total Portfolio Value: $${totalValue.toFixed(2)}`, { align: "right" });
