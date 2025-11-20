@@ -23,12 +23,6 @@ const quotesLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
 });
-
-// Limit report generation to prevent DoS (stricter limits, e.g., 10 req/15min)
-const reportLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // max 10 requests per windowMs
-});
 // -------------------- Global Files --------------------
 const PORTFOLIO_FILE = path.join(__dirname, "portfolio.json");
 
