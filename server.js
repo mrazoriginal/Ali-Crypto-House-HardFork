@@ -23,6 +23,14 @@ const quotesLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
 });
+
+// Limit PDF report generation (expensive) to, e.g., 10 requests per 15 minutes
+const reportLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { error: "Too many report requests from this IP, please try again later." }
+});
+
 // -------------------- Global Files --------------------
 const PORTFOLIO_FILE = path.join(__dirname, "portfolio.json");
 
