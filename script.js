@@ -156,7 +156,7 @@ searchBtn.addEventListener("click", async () => {
   await new Promise((r) => setTimeout(r, 1200));
   alert("Oops! You are not one of the Chosen😜");
   searchInput.value = "";
-  searchInput.disabled = True;
+  searchInput.disabled = false;
   searchInput.placeholder = originalPlaceholder;
   searchInput.style.opacity = "1";
   searchInput.focus();
