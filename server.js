@@ -95,7 +95,7 @@ app.get("/api/report", reportLimiter, async (req, res) => {
       portfolio = JSON.parse(fs.readFileSync(PORTFOLIO_FILE, "utf-8"));
     }
 
-    // Fetch fresh prices from backend (professor requirement)
+    // Fetch fresh prices from backend
     const coins = ["bitcoin", "ethereum", "tether"];
     const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coins.join(
       ","
@@ -129,8 +129,8 @@ app.get("/api/report", reportLimiter, async (req, res) => {
     doc.fontSize(14).font("Helvetica-Bold");
     doc.text("Coin", 50, doc.y, { continued: true });
     doc.text("Holdings", 150, doc.y, { continued: true });
-    doc.text("Price (USD)", 250, doc.y, { continued: true });
-    doc.text("Value (USD)", 370, doc.y);
+    doc.text("Price", 250, doc.y, { continued: true });
+    doc.text("Value", 370, doc.y);
     doc.moveDown(0.5);
     doc.moveTo(50, doc.y).lineTo(500, doc.y).stroke();
     doc.moveDown(0.5);
