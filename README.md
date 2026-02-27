@@ -1,3 +1,6 @@
+Watch a Demo here:
+https://youtu.be/lPng_cyQga8
+
 # Ali Crypto House💻🚀
 
 Welcome to **Ali Crypto House** — a fun and interactive crypto dashboard featuring live coin prices, floating particles, emoji effects, random trader quotes, and now **PDF portfolio reports**. Built for both entertainment and learning purposes! 😎💸
